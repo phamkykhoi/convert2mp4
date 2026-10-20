@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+<title>WebM → MP4</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="titlebar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="accent" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M10 9l5 3-5 3z"></path></svg>
+    <span id="title">WebM → MP4</span>
+  </header>
+
+  <main id="main"></main>
+
+  <footer id="footer"></footer>
+</div>
+
+<div class="drag-overlay" id="drag-overlay" hidden>
+  <div class="drag-card">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg>
+    <span>Thả để thêm file</span>
+  </div>
+</div>
+
+<div class="backdrop" id="settings" hidden>
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="dialog-body">
+      <h2 id="settings-title">Cài đặt</h2>
+      <div class="field">
+        <span class="field-label" id="res-label">Độ phân giải</span>
+        <div class="segmented" role="group" aria-labelledby="res-label">
+          <button type="button" data-res="1080">1080p</button>
+          <button type="button" data-res="720">720p</button>
+          <button type="button" data-res="source">Giữ nguyên</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">Lưu vào</span>
+        <label class="radio"><input type="radio" name="out" value="same">Cùng thư mục với file gốc</label>
+        <label class="radio"><input type="radio" name="out" value="custom"><span id="custom-dir-label">Chọn thư mục…</span></label>
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" data-action="settings-cancel">Huỷ</button>
+      <button type="button" class="btn primary" data-action="settings-save">Lưu</button>
+    </div>
+  </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
