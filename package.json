@@ -10,8 +10,8 @@
   "scripts": {
     "start": "electron .",
     "test": "node scripts/test-convert.js",
-    "dist:win": "electron-builder --win nsis --x64",
-    "dist:mac": "electron-builder --mac dmg"
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:mac": "electron-builder --mac dmg --publish never"
   },
   "dependencies": {
     "ffmpeg-static": "^5.3.0"
