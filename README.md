@@ -61,4 +61,4 @@ scripts/test-convert.js
   chạy dạng "đang xử lý" và hiện thời gian đã chuyển thay cho phần trăm.
 - **Bản quyền FFmpeg**: gói `ffmpeg-static` dùng bản FFmpeg có libx264 (giấy phép GPL). Dùng nội bộ thì
   không vấn đề; nếu phát hành thương mại, cần xem lại điều khoản GPL.
-- Chưa có icon riêng: thêm `build/icon.ico` (256×256) để electron-builder tự dùng.
+- Icon app: `build/icon.ico` (Windows, có sẵn bản nhỏ 16–48 px chỉ dùng mặt mèo cho dễ nhìn) và `build/icon.png` (macOS).
