@@ -10,10 +10,10 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
       - run: npm install
       - run: npm test
       - name: Build installer
@@ -28,7 +28,7 @@ jobs:
           if [ -f build.log ]; then
             echo "::error title=electron-builder::$(tail -n 60 build.log | sed -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')"
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: webm-to-mp4-setup
           path: dist/*.exe
