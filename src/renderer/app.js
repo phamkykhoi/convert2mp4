@@ -97,7 +97,7 @@
   // ---------- thêm / xoá file ----------
 
   async function pickFiles() {
-    if (!settingsEl.hidden) return;
+    if (!settingsEl.hidden || !detailsEl.hidden) return;
     addPaths(await api.pickFiles());
   }
 
@@ -127,7 +127,8 @@
         if (info.duration) f.duration = info.duration;
         if (!info.ok && f.status === 'waiting') {
           f.status = 'error';
-          f.error = 'Không đọc được file';
+          f.error = info.error || 'Không đọc được file';
+          f.log = info.log;
         }
         render();
       });
@@ -266,7 +267,7 @@
 
   function statusHtml(f) {
     if (f.status === 'done') return `<span class="status ok">${ICON.check}Xong</span>`;
-    if (f.status === 'error') return `<span class="status err" title="${esc(f.error || '')}">${ICON.err}${esc(f.error || 'Lỗi')}</span>`;
+    if (f.status === 'error') return errLink(f);
     if (f.status === 'running') {
       if (f.pct == null) {
         return `<div class="status-cell"><div class="bar indeterminate"><i></i></div><span class="pct">${f.time ? fmtDur(f.time) : ''}</span></div>`;
@@ -274,6 +275,12 @@
       return `<div class="status-cell"><div class="bar"><i data-w="${f.pct.toFixed(1)}"></i></div><span class="pct">${Math.floor(f.pct)}%</span></div>`;
     }
     return `<span class="status wait">${S.paused ? 'Tạm dừng' : 'Đang chờ'}</span>`;
+  }
+
+  function errLink(f, short) {
+    const text = short ? 'Lỗi' : f.error || 'Lỗi';
+    return `<button class="err-link" data-action="details" data-id="${f.id}" title="${esc(f.error || 'Lỗi')} — bấm để xem chi tiết">` +
+      `${ICON.err}<span>${esc(text)}</span></button>`;
   }
 
   function nameHtml(f) {
@@ -285,7 +292,7 @@
       if (ph === 'queue') {
         let info = `<span class="right num">${fmtDur(f.duration)}</span>`;
         if (f.status === 'done') info = `<span class="status ok right">${ICON.check}Xong</span>`;
-        if (f.status === 'error') info = `<span class="status err right" title="${esc(f.error || '')}">${ICON.err}Lỗi</span>`;
+        if (f.status === 'error') info = `<span class="right">${errLink(f, true)}</span>`;
         return `<div class="row cols-queue">${nameHtml(f)}${info}<span class="right num">${fmtSize(f.size)}</span>` +
           `<button class="icon-btn" data-action="remove" data-id="${f.id}" aria-label="Xoá khỏi danh sách" title="Xoá khỏi danh sách">${ICON.x}</button></div>`;
       }
@@ -299,8 +306,9 @@
           `<button class="icon-btn" data-action="play" data-id="${f.id}" aria-label="Mở file" title="Mở file">${ICON.play}</button></div></div>`;
       }
       return `<div class="row cols-done err">${nameHtml(f)}<span class="right num">${fmtSize(f.size)}</span>` +
-        `<div class="status-cell"><span class="status err" title="${esc(f.error || '')}">${ICON.err}Lỗi</span>` +
-        `<button class="btn" data-action="retry" data-id="${f.id}">Thử lại</button></div></div>`;
+        `<div class="status-cell">${errLink(f)}<div class="row-actions">` +
+        `<button class="btn ghost" data-action="details" data-id="${f.id}">Chi tiết</button>` +
+        `<button class="btn" data-action="retry" data-id="${f.id}">Thử lại</button></div></div></div>`;
     }).join('');
   }
 
@@ -477,6 +485,36 @@
     if (e.target === settingsEl) closeSettings();
   });
 
+  // ---------- hộp thoại chi tiết lỗi ----------
+
+  const detailsEl = document.getElementById('details');
+  const copiedEl = document.getElementById('details-copied');
+  let detailsText = '';
+
+  function openDetails(id) {
+    const f = byId(id);
+    if (!f) return;
+    S.menuOpen = false;
+    document.getElementById('details-reason').textContent = f.error || 'Lỗi';
+    document.getElementById('details-file').textContent = f.path;
+    const log = (f.log || 'Không có log chi tiết.').trim();
+    document.getElementById('details-log').textContent = log;
+    detailsText = `${f.path}\n${f.error || 'Lỗi'}\n\n${log}`;
+    copiedEl.hidden = true;
+    detailsEl.hidden = false;
+    const logEl = document.getElementById('details-log');
+    logEl.scrollTop = logEl.scrollHeight; // dòng lỗi thường nằm cuối log
+    detailsEl.querySelector('[data-action="details-close"]').focus();
+  }
+
+  function closeDetails() {
+    detailsEl.hidden = true;
+  }
+
+  detailsEl.addEventListener('mousedown', (e) => {
+    if (e.target === detailsEl) closeDetails();
+  });
+
   // ---------- sự kiện ----------
 
   document.addEventListener('click', (e) => {
@@ -499,6 +537,9 @@
       case 'retry': retry(id); break;
       case 'play': { const f = byId(id); if (f && f.out) api.openFile(f.out); break; }
       case 'open-folder': { const f = S.files.find((x) => x.status === 'done' && x.out); if (f) api.showInFolder(f.out); break; }
+      case 'details': openDetails(id); break;
+      case 'details-close': closeDetails(); break;
+      case 'details-copy': api.copyText(detailsText).then(() => { copiedEl.hidden = false; }); break;
       case 'settings': openSettings(); break;
       case 'settings-cancel': closeSettings(); break;
       case 'settings-save': saveSettings(); break;
@@ -509,11 +550,12 @@
   document.addEventListener('keydown', (e) => {
     const mod = e.ctrlKey || e.metaKey;
     if (e.key === 'Escape') {
-      if (!settingsEl.hidden) closeSettings();
+      if (!detailsEl.hidden) closeDetails();
+      else if (!settingsEl.hidden) closeSettings();
       else if (S.menuOpen) { S.menuOpen = false; render(); }
       return;
     }
-    if (!settingsEl.hidden) return;
+    if (!settingsEl.hidden || !detailsEl.hidden) return;
     if (mod && e.key.toLowerCase() === 'o') {
       e.preventDefault();
       pickFiles();

@@ -154,7 +154,7 @@ main { flex: 1; min-height: 0; padding: 16px 20px; display: flex; flex-direction
 .row.err { background: var(--err-bg); }
 .cols-queue { grid-template-columns: minmax(0, 1fr) 110px 110px 32px; }
 .cols-run { grid-template-columns: minmax(0, 1fr) 110px 260px; }
-.cols-done { grid-template-columns: minmax(0, 1fr) 110px 220px; }
+.cols-done { grid-template-columns: minmax(0, 1fr) 100px minmax(260px, 400px); }
 .right { text-align: right; }
 .name { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .name svg { flex-shrink: 0; color: var(--text-3); }
@@ -166,7 +166,23 @@ main { flex: 1; min-height: 0; padding: 16px 20px; display: flex; flex-direction
 .status.err { color: var(--err); }
 .status.wait { color: var(--text-3); }
 .status.right { justify-content: flex-end; }
-.status-cell { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.status-cell { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.err-link {
+  min-width: 0;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--err);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.err-link svg { flex-shrink: 0; }
+.err-link span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.err-link:hover span { text-decoration: underline; }
+.right .err-link { float: right; }
 
 .bar { flex: 1; height: 4px; border-radius: 2px; background: var(--track); overflow: hidden; position: relative; }
 .bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--accent); transition: width 0.25s linear; }
@@ -263,3 +279,20 @@ footer {
 .radio span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 330px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; background: #F7F7F7; border-top: 1px solid var(--border); }
 .dialog-actions .btn { height: 36px; padding: 0 18px; }
+.dialog-actions .muted { margin-right: auto; align-self: center; }
+.dialog.wide { width: min(720px, calc(100vw - 48px)); }
+.detail-reason { color: var(--err); font-size: 15px; font-weight: 600; }
+.detail-file { color: var(--text-2); word-break: break-all; user-select: text; }
+.log {
+  margin: 0;
+  max-height: 300px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 6px;
+  background: #1E1E1E;
+  color: #E6E6E6;
+  font: 12px/1.5 Consolas, 'Cascadia Mono', Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: text;
+}

@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('api', {
   resume: (ids) => ipcRenderer.invoke('resume', ids),
   openFile: (p) => ipcRenderer.invoke('open-file', p),
   showInFolder: (p) => ipcRenderer.invoke('show-in-folder', p),
+  copyText: (text) => ipcRenderer.invoke('copy-text', text),
   setProgress: (fraction, paused, title) => ipcRenderer.send('set-progress', fraction, paused, title),
   notify: (title, body) => ipcRenderer.send('notify', title, body),
   // Đường dẫn thật của file được kéo thả vào cửa sổ.

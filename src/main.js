@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, dialog, shell, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Notification, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const conv = require('./converter');
@@ -102,6 +102,9 @@ function createWindow() {
 
 const lastProgressSent = new Map();
 
+const logHeader = () =>
+  `WebM to MP4 ${app.getVersion()} · ${process.platform} ${process.arch} · ${require('os').release()}\n`;
+
 function registerIpc() {
   ipcMain.handle('initial-files', () => {
     rendererReady = true;
@@ -140,7 +143,14 @@ function registerIpc() {
 
   ipcMain.handle('expand-paths', (_e, paths) => (Array.isArray(paths) ? conv.expandPaths(paths) : []));
 
-  ipcMain.handle('probe', (_e, file) => (typeof file === 'string' ? conv.probe(file) : { ok: false }));
+  ipcMain.handle('probe', async (_e, file) => {
+    if (typeof file !== 'string') return { ok: false };
+    const r = await conv.probe(file);
+    if (!r.ok) r.log = `${logHeader()}File: ${file}\nFFmpeg: ${conv.FFMPEG}\n\n${r.log || ''}`;
+    return r;
+  });
+
+  ipcMain.handle('copy-text', (_e, text) => clipboard.writeText(String(text)));
 
   ipcMain.handle('convert', (e, id, input, opts) => {
     const sender = e.sender;
@@ -153,6 +163,7 @@ function registerIpc() {
       if (!sender.isDestroyed()) sender.send('progress', { id, ...p });
     }).then((r) => {
       lastProgressSent.delete(id);
+      if (r.log) r.log = logHeader() + r.log;
       return r;
     });
   });

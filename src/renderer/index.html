@@ -50,6 +50,22 @@
   </section>
 </div>
 
+<div class="backdrop" id="details" hidden>
+  <section class="dialog wide" role="dialog" aria-modal="true" aria-labelledby="details-title">
+    <div class="dialog-body">
+      <h2 id="details-title">Chi tiết lỗi</h2>
+      <div class="detail-reason" id="details-reason"></div>
+      <div class="detail-file" id="details-file"></div>
+      <pre class="log" id="details-log"></pre>
+    </div>
+    <div class="dialog-actions">
+      <span class="muted" id="details-copied" hidden>Đã sao chép</span>
+      <button type="button" class="btn" data-action="details-copy">Sao chép</button>
+      <button type="button" class="btn primary" data-action="details-close">Đóng</button>
+    </div>
+  </section>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>

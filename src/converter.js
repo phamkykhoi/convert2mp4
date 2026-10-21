@@ -98,15 +98,20 @@ function probe(file) {
       text += d;
       if (text.length > 100000) text = text.slice(-100000);
     });
-    proc.on('error', () => resolve({ ok: false }));
+    proc.on('error', (err) => resolve({ ok: false, error: friendlyError(String(err)), log: String(err) }));
     proc.on('close', () => {
       const v = /Video:.*?[ ,](\d{2,5})x(\d{2,5})\b/.exec(text);
-      resolve({
+      const info = {
         ok: Boolean(v),
         duration: parseDuration(text),
         width: v ? Number(v[1]) : null,
         height: v ? Number(v[2]) : null
-      });
+      };
+      if (!v) {
+        info.error = /Stream #.*Audio:/.test(text) ? NO_VIDEO : friendlyError(text);
+        info.log = text.slice(-LOG_CHARS);
+      }
+      resolve(info);
     });
   }));
 }
@@ -178,8 +183,13 @@ function uniqueOutput(dir, base) {
   return candidate;
 }
 
+const NO_VIDEO = 'File chỉ có âm thanh, không có hình';
+const LOG_CHARS = 6000;
+
 function friendlyError(stderr) {
+  if (/spawn .*ENOENT/i.test(stderr)) return 'Không tìm thấy FFmpeg trong app';
   if (/No space left/i.test(stderr)) return 'Ổ đĩa đã đầy';
+  if (/matches no streams|'0:v:0' for option 'map'|does not contain any stream/i.test(stderr)) return NO_VIDEO;
   if (/No such file/i.test(stderr)) return 'Không tìm thấy file';
   if (/Permission denied|Access is denied/i.test(stderr)) return 'Không có quyền ghi vào thư mục';
   if (/Invalid data|EBML|corrupt|truncat/i.test(stderr)) return 'File bị hỏng, không đọc được';
@@ -240,6 +250,14 @@ async function convert(id, input, opts, onProgress) {
   const base = path.basename(input).replace(/\.webm$/i, '');
   let output = null;
   let tmp = null;
+  const tried = [encoder];
+  const header = () => [
+    `File: ${input}`,
+    `Lưu vào: ${output || dir}`,
+    `Encoder: ${tried.join(' → ')}`,
+    `FFmpeg: ${FFMPEG}`,
+    ''
+  ].join('\n');
   try {
     fs.mkdirSync(dir, { recursive: true });
     output = uniqueOutput(dir, base);
@@ -249,6 +267,7 @@ async function convert(id, input, opts, onProgress) {
     // GPU lỗi với file này → tự chạy lại bằng CPU.
     if (r.code !== 0 && !r.killed && encoder !== 'libx264') {
       safeUnlink(tmp);
+      tried.push('libx264');
       r = await encode(id, input, tmp, 'libx264', opts, onProgress);
     }
     if (r.killed) {
@@ -257,14 +276,14 @@ async function convert(id, input, opts, onProgress) {
     }
     if (r.code !== 0) {
       safeUnlink(tmp);
-      return { status: 'error', error: friendlyError(r.stderr), log: r.stderr.slice(-4000) };
+      return { status: 'error', error: friendlyError(r.stderr), log: header() + r.stderr.slice(-LOG_CHARS) };
     }
     fs.renameSync(tmp, output);
     outputs.add(output);
     return { status: 'done', output, size: fs.statSync(output).size };
   } catch (e) {
     if (tmp) safeUnlink(tmp);
-    return { status: 'error', error: friendlyError(String(e)), log: String(e) };
+    return { status: 'error', error: friendlyError(String(e)), log: header() + String(e) };
   } finally {
     if (output) reserved.delete(output);
     jobs.delete(id);
