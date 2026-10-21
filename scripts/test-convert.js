@@ -63,6 +63,16 @@ function inspect(file) {
   if (!dupOk) failed++;
   console.log(`${dupOk ? '✓' : '✗'} trùng tên → ${again.output && path.basename(again.output)}`);
 
+  // Windows: lưu thẳng vào gốc ổ đĩa (vd. D:\) — trước đây lỗi EPERM khi mkdir
+  if (process.platform === 'win32') {
+    const root = path.parse(dir).root;
+    const rootRun = await conv.convert('root', path.join(dir, 'nho-720p.webm'), { resolution: '1080', outputMode: 'custom', outputDir: root }, () => {});
+    const rootOk = rootRun.status === 'done' && path.dirname(rootRun.output) === path.dirname(path.join(root, 'x'));
+    if (!rootOk) failed++;
+    console.log(`${rootOk ? '✓' : '✗'} lưu vào gốc ổ đĩa ${root} → ${rootRun.output || rootRun.error + '\n' + rootRun.log}`);
+    if (rootRun.output) fs.rmSync(rootRun.output, { force: true });
+  }
+
   // File hỏng → báo lỗi dễ hiểu
   const broken = path.join(dir, 'hong.webm');
   fs.writeFileSync(broken, Buffer.from('day khong phai video'));

@@ -191,7 +191,7 @@ function friendlyError(stderr) {
   if (/No space left/i.test(stderr)) return 'Ổ đĩa đã đầy';
   if (/matches no streams|'0:v:0' for option 'map'|does not contain any stream/i.test(stderr)) return NO_VIDEO;
   if (/No such file/i.test(stderr)) return 'Không tìm thấy file';
-  if (/Permission denied|Access is denied/i.test(stderr)) return 'Không có quyền ghi vào thư mục';
+  if (/Permission denied|Access is denied|EPERM|EACCES|operation not permitted/i.test(stderr)) return 'Không có quyền ghi vào thư mục';
   if (/Invalid data|EBML|corrupt|truncat/i.test(stderr)) return 'File bị hỏng, không đọc được';
   return 'Không chuyển được file';
 }
@@ -259,7 +259,8 @@ async function convert(id, input, opts, onProgress) {
     ''
   ].join('\n');
   try {
-    fs.mkdirSync(dir, { recursive: true });
+    // Chỉ tạo khi chưa có: trên Windows, mkdir gốc ổ đĩa (vd. "D:\\") báo EPERM dù ổ vẫn ghi được.
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     output = uniqueOutput(dir, base);
     tmp = `${output}.part`;
 
