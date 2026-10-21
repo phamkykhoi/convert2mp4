@@ -1,4 +1,4 @@
-# WebM → MP4
+# Little Cat - Convert to MP4
 
 App desktop (ưu tiên Windows) chuyển một hoặc nhiều file `.webm` sang `.mp4`.
 Electron + FFmpeg đóng gói sẵn, người dùng không cần cài thêm gì.

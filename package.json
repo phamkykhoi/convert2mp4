@@ -1,6 +1,6 @@
 {
   "name": "webm-to-mp4",
-  "productName": "WebM to MP4",
+  "productName": "Little Cat - Convert to MP4",
   "version": "1.0.1",
   "description": "Chuyển nhiều file WebM sang MP4 trên Windows",
   "main": "src/main.js",
@@ -22,7 +22,7 @@
   },
   "build": {
     "appId": "com.concrete.webm2mp4",
-    "productName": "WebM to MP4",
+    "productName": "Little Cat - Convert to MP4",
     "files": [
       "src/**/*",
       "package.json"
@@ -44,7 +44,7 @@
       "oneClick": true,
       "perMachine": false,
       "include": "build/installer.nsh",
-      "shortcutName": "WebM to MP4"
+      "shortcutName": "Little Cat - Convert to MP4"
     },
     "mac": {
       "target": "dmg"

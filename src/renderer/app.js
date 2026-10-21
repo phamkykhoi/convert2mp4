@@ -4,7 +4,7 @@
   document.body.classList.add(api.platform);
 
   const CONCURRENCY = 2;
-  const APP_TITLE = 'WebM → MP4';
+  const APP_TITLE = 'Little Cat - Convert to MP4';
   const RES_SHORT = { 1080: '1080p', 720: '720p', source: 'Độ phân giải gốc' };
   const RES_MENU = { 1080: 'Chuyển sang 1080p', 720: 'Chuyển sang 720p', source: 'Giữ nguyên độ phân giải' };
 

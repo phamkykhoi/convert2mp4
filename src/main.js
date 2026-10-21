@@ -54,7 +54,7 @@ function createWindow() {
     minWidth: 720,
     minHeight: 480,
     show: false,
-    title: 'WebM → MP4',
+    title: 'Little Cat - Convert to MP4',
     backgroundColor: '#F3F3F3',
     titleBarStyle: 'hidden',
     // Windows/Linux: hệ điều hành tự vẽ nút thu nhỏ / phóng to / đóng trên nền thanh tiêu đề của app.
@@ -79,7 +79,7 @@ function createWindow() {
       buttons: ['Thoát', 'Ở lại'],
       defaultId: 1,
       cancelId: 1,
-      title: 'WebM → MP4',
+      title: 'Little Cat - Convert to MP4',
       message: 'Đang chuyển đổi. Thoát sẽ huỷ các file chưa xong.'
     });
     if (choice === 1) {
@@ -103,7 +103,7 @@ function createWindow() {
 const lastProgressSent = new Map();
 
 const logHeader = () =>
-  `WebM to MP4 ${app.getVersion()} · ${process.platform} ${process.arch} · ${require('os').release()}\n`;
+  `Little Cat - Convert to MP4 ${app.getVersion()} · ${process.platform} ${process.arch} · ${require('os').release()}\n`;
 
 function registerIpc() {
   ipcMain.handle('initial-files', () => {
